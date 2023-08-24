@@ -1,4 +1,4 @@
-package f4.scheduleservice;
+package f4.emailscheduler;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

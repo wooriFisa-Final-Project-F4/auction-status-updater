@@ -11,7 +11,7 @@ public class ProductDto {
   private String name;
   private String images;
   private String artist;
-  private String bidPrice;
+  private String auctionPrice;
   private LocalDateTime auctionEndTime;
   private String bidUserId;
 }
