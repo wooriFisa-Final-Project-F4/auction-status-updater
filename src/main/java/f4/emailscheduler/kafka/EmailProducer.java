@@ -11,6 +11,8 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @AllArgsConstructor
 public class EmailProducer {
@@ -19,10 +21,9 @@ public class EmailProducer {
   private KafkaTemplate<String, EmailEvent> kafkaTemplate;
 
   public void send(EmailEvent event) {
-    LOGGER.info(String.format("Email event => %s", event.toString()));
-
     Message<EmailEvent> message =
         MessageBuilder.withPayload(event).setHeader(KafkaHeaders.TOPIC, topic.name()).build();
     kafkaTemplate.send(message);
+    LOGGER.info(String.format("[%s] Email event Send=> %s", LocalDateTime.now(), event));
   }
 }
