@@ -13,10 +13,6 @@
 .idea/**/dictionaries
 .idea/**/shelf
 *.properties
-settings.gradle
-gradle/wrapper
-gradlew
-gradlew.bat
 # AWS User-specific
 .idea/**/aws.xml
 
