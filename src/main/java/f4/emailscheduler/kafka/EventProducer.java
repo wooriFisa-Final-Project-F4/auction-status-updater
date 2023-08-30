@@ -1,6 +1,6 @@
 package f4.emailscheduler.kafka;
 
-import f4.emailscheduler.dto.EmailEvent;
+import f4.emailscheduler.dto.EndedAuctionEvent;
 import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
@@ -15,15 +15,16 @@ import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
-public class EmailProducer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(EmailProducer.class);
-  private NewTopic topic;
-  private KafkaTemplate<String, EmailEvent> kafkaTemplate;
+public class EventProducer {
+  private static final Logger LOGGER = LoggerFactory.getLogger(EventProducer.class);
 
-  public void send(EmailEvent event) {
-    Message<EmailEvent> message =
-        MessageBuilder.withPayload(event).setHeader(KafkaHeaders.TOPIC, topic.name()).build();
+  private NewTopic newTopic;
+  private KafkaTemplate<String, EndedAuctionEvent> kafkaTemplate;
+
+  public void send(EndedAuctionEvent event) {
+    Message<EndedAuctionEvent> message =
+        MessageBuilder.withPayload(event).setHeader(KafkaHeaders.TOPIC, newTopic.name()).build();
     kafkaTemplate.send(message);
-    LOGGER.info(String.format("[%s] Email event Send=> %s", LocalDateTime.now(), event));
+    LOGGER.info(String.format("[%s] event Send=> %s", LocalDateTime.now(), event));
   }
 }
