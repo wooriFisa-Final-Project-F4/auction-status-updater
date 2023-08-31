@@ -13,6 +13,10 @@
 .idea/**/dictionaries
 .idea/**/shelf
 *.properties
+settings.gradle
+gradle/wrapper
+gradlew
+gradlew.bat
 # AWS User-specific
 .idea/**/aws.xml
 
@@ -228,3 +232,4 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,intellij,gradle,java
+/gradle/

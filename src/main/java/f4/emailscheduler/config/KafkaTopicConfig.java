@@ -10,10 +10,10 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
   @Value("${spring.kafka.topic}")
-  private String topic;
+  private String topicName;
 
   @Bean
-  public NewTopic newTopic() {
-    return TopicBuilder.name(topic).partitions(3).build();
+  public NewTopic topic() {
+    return TopicBuilder.name(topicName).partitions(3).build();
   }
 }

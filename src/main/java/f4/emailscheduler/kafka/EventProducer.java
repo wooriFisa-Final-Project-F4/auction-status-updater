@@ -18,13 +18,16 @@ import java.time.LocalDateTime;
 public class EventProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventProducer.class);
 
-  private NewTopic newTopic;
+  private NewTopic topic;
   private KafkaTemplate<String, EndedAuctionEvent> kafkaTemplate;
 
   public void send(EndedAuctionEvent event) {
     Message<EndedAuctionEvent> message =
-        MessageBuilder.withPayload(event).setHeader(KafkaHeaders.TOPIC, newTopic.name()).build();
+        MessageBuilder.withPayload(event).setHeader(KafkaHeaders.TOPIC, topic.name()).build();
     kafkaTemplate.send(message);
-    LOGGER.info(String.format("[%s] event Send=> %s", LocalDateTime.now(), event));
+    LOGGER.info(
+        String.format(
+            "[%s] [%s] event Send to payment-service and email-service",
+            LocalDateTime.now(), event));
   }
 }
