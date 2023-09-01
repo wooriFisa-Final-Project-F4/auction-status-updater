@@ -1,4 +1,4 @@
-package f4.emailscheduler.dto;
+package f4.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

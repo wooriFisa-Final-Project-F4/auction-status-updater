@@ -1,6 +1,6 @@
-package f4.emailscheduler.service;
+package f4.service;
 
-import f4.emailscheduler.dto.ProductDto;
+import f4.dto.ProductDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,5 +14,5 @@ public interface ProductServiceAPI {
   List<ProductDto> getProductsToBeEnded();
 
   @PutMapping("")
-  ProductDto auctionStatusUpdate(long productId, String status);
+  ProductDto auctionStatusUpdate(long productId);
 }

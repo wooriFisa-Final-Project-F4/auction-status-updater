@@ -1,11 +1,11 @@
-package f4.emailscheduler.service;
+package f4.service;
 
-import f4.emailscheduler.constant.CustomErrorCode;
-import f4.emailscheduler.dto.EndedAuctionEvent;
-import f4.emailscheduler.dto.ProductDto;
-import f4.emailscheduler.dto.UserDto;
-import f4.emailscheduler.exception.CustomException;
-import f4.emailscheduler.kafka.EventProducer;
+import f4.constant.CustomErrorCode;
+import f4.dto.EndedAuctionEvent;
+import f4.dto.ProductDto;
+import f4.dto.UserDto;
+import f4.exception.CustomException;
+import f4.kafka.EventProducer;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.KafkaException;
@@ -35,7 +35,7 @@ public class AuctionStatusUpdater {
   }
 
   private void updateProductStatus(ProductDto product) {
-    ProductDto updatedProduct = productServiceAPI.auctionStatusUpdate(product.getId(), "END");
+    ProductDto updatedProduct = productServiceAPI.auctionStatusUpdate(product.getId());
     UserDto userDto = userServiceAPI.getUserById(updatedProduct.getBidUserId());
     EndedAuctionEvent event = createEndedAuctionEvent(updatedProduct, userDto);
     eventProducer.send(event);

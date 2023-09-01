@@ -1,6 +1,6 @@
-package f4.emailscheduler.exception;
+package f4.exception;
 
-import f4.emailscheduler.constant.CustomErrorCode;
+import f4.constant.CustomErrorCode;
 import lombok.Getter;
 
 @Getter

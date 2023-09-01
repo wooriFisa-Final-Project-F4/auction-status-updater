@@ -1,6 +1,6 @@
-package f4.emailscheduler.kafka;
+package f4.kafka;
 
-import f4.emailscheduler.dto.EndedAuctionEvent;
+import f4.dto.EndedAuctionEvent;
 import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
