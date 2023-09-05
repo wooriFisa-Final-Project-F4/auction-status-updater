@@ -8,49 +8,64 @@ import f4.exception.CustomException;
 import f4.kafka.EventProducer;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.KafkaException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuctionStatusUpdater {
-  private static final String CRON_EXPRESSION = "0 0 0 * * ?";
+  private static final String CRON_PROGRESS_TO_END = "0 0 0 * * ?";
+  private static final String CRON_WAIT_TO_PROGRESS = "0 0 14 * * ?";
   private final UserServiceAPI userServiceAPI;
   private final ProductServiceAPI productServiceAPI;
   private final EventProducer eventProducer;
 
-  @Scheduled(cron = CRON_EXPRESSION)
-  public void updateAuctionStatus() {
+  @Scheduled(cron = CRON_PROGRESS_TO_END)
+  public void updateAuctionStatusToEnd() {
     try {
-      List<ProductDto> productsToBeEnded = productServiceAPI.getProductsToBeEnded();
-      productsToBeEnded.forEach(this::updateProductStatus);
+      List<ProductDto> updatedProducts = productServiceAPI.auctionStatusUpdateToEnd();
+      updatedProducts.forEach(this::updateProductStatusToEnd);
     } catch (FeignException e) {
+      log.error("Feign통신에 실패했습니다.");
       throw new CustomException(CustomErrorCode.FEIGN_FAILED, e);
     } catch (KafkaException e) {
+      log.error("kafka 이벤트 발행에 실패했습니다.");
       throw new CustomException(CustomErrorCode.EMAIL_EVENT_PUB_FAILED, e);
     }
   }
 
-  private void updateProductStatus(ProductDto product) {
-    ProductDto updatedProduct = productServiceAPI.auctionStatusUpdate(product.getId());
-    UserDto userDto = userServiceAPI.getUserById(updatedProduct.getBidUserId());
-    EndedAuctionEvent event = createEndedAuctionEvent(updatedProduct, userDto);
-    eventProducer.send(event);
+  @Scheduled(cron = CRON_WAIT_TO_PROGRESS)
+  public void updateAuctionStatusToProgress() {
+    try {
+      productServiceAPI.auctionStatusUpdateToProgress();
+    } catch (FeignException e) {
+      log.error("Feign통신에 실패했습니다.");
+      throw new CustomException(CustomErrorCode.FEIGN_FAILED, e);
+    }
   }
 
-  private EndedAuctionEvent createEndedAuctionEvent(ProductDto updatedProduct, UserDto userDto) {
+  private void updateProductStatusToEnd(ProductDto product) {
+    UserDto userDto = userServiceAPI.getUserById(product.getBidUserId());
+    EndedAuctionEvent event = createEndedAuctionEvent(product, userDto);
+    eventProducer.send(event);
+    log.info(String.format("[%s] 발행", event.toString()));
+  }
+
+  private EndedAuctionEvent createEndedAuctionEvent(ProductDto product, UserDto userDto) {
     return EndedAuctionEvent.builder()
         .userId(userDto.getUserId())
         .userEmail(userDto.getUserEmail())
         .username(userDto.getUserName())
-        .productName(updatedProduct.getName())
-        .image(updatedProduct.getImage())
-        .artist(updatedProduct.getArtist())
-        .auctionPrice(updatedProduct.getAuctionPrice())
-        .auctionEndTime(updatedProduct.getAuctionEndTime())
+        .productName(product.getName())
+        .image(product.getImage())
+        .artist(product.getArtist())
+        .auctionPrice(product.getAuctionPrice())
+        .auctionEndTime(product.getAuctionEndTime())
         .build();
   }
 }
