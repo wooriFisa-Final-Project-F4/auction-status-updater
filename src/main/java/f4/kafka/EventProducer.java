@@ -11,7 +11,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -25,9 +24,6 @@ public class EventProducer {
     Message<EndedAuctionEvent> message =
         MessageBuilder.withPayload(event).setHeader(KafkaHeaders.TOPIC, topic.name()).build();
     kafkaTemplate.send(message);
-    LOGGER.info(
-        String.format(
-            "[%s] [%s] event Send to payment-service and email-service",
-            LocalDateTime.now(), event));
+    LOGGER.info(String.format("[%s] event Send to payment-service and email-service", event));
   }
 }
