@@ -2,8 +2,8 @@ package f4.service;
 
 import f4.constant.CustomErrorCode;
 import f4.dto.EndedAuctionEvent;
-import f4.dto.ProductDto;
-import f4.dto.UserDto;
+import f4.dto.FeignProductDto;
+import f4.dto.UserCheckResponseDto;
 import f4.exception.CustomException;
 import f4.kafka.EventProducer;
 import feign.FeignException;
@@ -28,7 +28,7 @@ public class AuctionStatusUpdater {
   @Scheduled(cron = CRON_PROGRESS_TO_END)
   public void updateAuctionStatusToEnd() {
     try {
-      List<ProductDto> updatedProducts = productServiceAPI.auctionStatusUpdateToEnd();
+      List<FeignProductDto> updatedProducts = productServiceAPI.auctionStatusUpdateToEnd();
       updatedProducts.forEach(this::updateProductStatusToEnd);
     } catch (FeignException e) {
       log.error("Feign통신에 실패했습니다.");
@@ -49,18 +49,18 @@ public class AuctionStatusUpdater {
     }
   }
 
-  private void updateProductStatusToEnd(ProductDto product) {
-    UserDto userDto = userServiceAPI.getUserById(product.getBidUserId());
-    EndedAuctionEvent event = createEndedAuctionEvent(product, userDto);
+  private void updateProductStatusToEnd(FeignProductDto product) {
+    UserCheckResponseDto userCheckResponseDto = userServiceAPI.getUserById(product.getBidUserId());
+    EndedAuctionEvent event = createEndedAuctionEvent(product, userCheckResponseDto);
     eventProducer.send(event);
     log.info(String.format("[%s] 발행", event.toString()));
   }
 
-  private EndedAuctionEvent createEndedAuctionEvent(ProductDto product, UserDto userDto) {
+  private EndedAuctionEvent createEndedAuctionEvent(FeignProductDto product, UserCheckResponseDto userCheckResponseDto) {
     return EndedAuctionEvent.builder()
-        .userId(userDto.getUserId())
-        .userEmail(userDto.getUserEmail())
-        .username(userDto.getUserName())
+        .userId(userCheckResponseDto.getUserId())
+        .userEmail(userCheckResponseDto.getEmail())
+        .username(userCheckResponseDto.getUsername())
         .productName(product.getName())
         .image(product.getImage())
         .artist(product.getArtist())
